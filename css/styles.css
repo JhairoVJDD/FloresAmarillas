@@ -1,0 +1,759 @@
+/* ==========================================================================
+   DÍA DE LAS FLORES AMARILLAS - 21 DE SEPTIEMBRE
+   Estilos CSS Modernos, Responsivos y con Perspectiva 3D
+   ========================================================================== */
+
+/* 1. Reset y Variables Globales */
+:root {
+  --primary-yellow: #F4C430;
+  --yellow-glow: #FFE57F;
+  --gold-accent: #E5A91E;
+  --gold-dark: #C68A0C;
+  --gold-deep: #8F5E05;
+  --bg-cream: #FAF7F2;
+  --bg-warm-light: #FFFDF9;
+  --leaf-green: #4A7C59;
+  --leaf-dark: #2F5233;
+  --text-dark: #2E2519;
+  --text-muted: #7A6F62;
+  --envelope-body: #F7EFE0;
+  --envelope-accent: #ECD9BA;
+  --envelope-shadow: rgba(142, 102, 34, 0.18);
+  --paper-bg: #FFFDF8;
+  
+  --font-title: 'Playfair Display', Georgia, serif;
+  --font-script: 'Dancing Script', cursive;
+  --font-ui: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--bg-cream);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(255, 243, 196, 0.5) 0%, transparent 60%),
+    linear-gradient(180deg, #FCF8F2 0%, #FAF4E8 50%, #F5ECDA 100%);
+  color: var(--text-dark);
+  font-family: var(--font-ui);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 2. Canvas de Pétalos Flotantes (Fondo interactivo) */
+#petals-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 3. Header Principal */
+.app-header {
+  position: relative;
+  z-index: 10;
+  padding: 2.5rem 1.5rem 1rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: rgba(244, 196, 48, 0.15);
+  border: 1px solid rgba(229, 169, 30, 0.35);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gold-dark);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(8px);
+  animation: fadeInDown 0.9s ease-out;
+}
+
+.header-title {
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+  font-weight: 700;
+  color: #2D2314;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 25px rgba(255, 215, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 1s ease-out;
+}
+
+.header-title .highlight {
+  background: linear-gradient(135deg, #FFB703 0%, #D49000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  display: inline-block;
+}
+
+.header-subtitle {
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  color: var(--text-muted);
+  font-weight: 400;
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.5;
+  animation: fadeIn 1.2s ease-out;
+}
+
+/* Botón flotante de audio */
+.audio-toggle-btn {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(229, 169, 30, 0.4);
+  background: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(180, 130, 30, 0.15);
+  transition: var(--transition-smooth);
+}
+
+.audio-toggle-btn:hover {
+  transform: scale(1.08) rotate(5deg);
+  background: #FFFDF9;
+  border-color: var(--primary-yellow);
+  box-shadow: 0 6px 20px rgba(244, 196, 48, 0.35);
+}
+
+.audio-toggle-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--gold-dark);
+  transition: var(--transition-smooth);
+}
+
+/* 4. Área Central y Escenario */
+.interactive-stage {
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1rem 3rem;
+}
+
+/* Backdrop oscuro suave al abrir la carta en el centro */
+.letter-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 20, 10, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 95;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.letter-backdrop.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Contenedor del sobre */
+.envelope-wrapper {
+  position: relative;
+  width: min(90vw, 440px);
+  height: 290px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.4s ease;
+}
+
+.envelope-wrapper:hover:not(.is-open) {
+  transform: translateY(-4px);
+}
+
+/* El Sobre (Cuerpo Principal con capas físicas z-index 1, 2, 3, 4) */
+.envelope {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 
+    0 16px 36px var(--envelope-shadow),
+    0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================================================
+   CAPAS DEL SOBRE (Z-INDEX 1, 2, 3, 4)
+   ========================================================================== */
+
+/* CAPA 1: Fondo interior del sobre */
+.envelope-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #DFCEB7 0%, #D2BF9E 100%);
+  border-radius: 12px;
+  box-shadow: inset 0 10px 22px rgba(80, 50, 15, 0.2);
+  z-index: 1;
+}
+
+/* CAPA 2: Ranura / Hoja dentro del sobre (totalmente guardada y oculta al estar cerrado) */
+.envelope-paper-slip {
+  position: absolute;
+  bottom: 12px;
+  left: 8%;
+  width: 84%;
+  height: 110px;
+  background: linear-gradient(to bottom, #FFFDF8 0%, #F5EADB 100%);
+  border-radius: 6px;
+  box-shadow: 
+    0 2px 8px rgba(70, 50, 20, 0.12),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.25);
+  z-index: 2;
+  pointer-events: none;
+  transform: translateY(0);
+}
+
+/* CAPA 3: Bolsillo frontal y solapas laterales */
+.envelope-pocket-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: calc(min(90vw, 440px) / 2) solid #ECDBC2;
+  border-top: 140px solid transparent;
+  border-bottom: 140px solid #ECDBC2;
+  border-bottom-left-radius: 12px;
+  z-index: 3;
+}
+
+.envelope-pocket-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-right: calc(min(90vw, 440px) / 2) solid #E8D4B8;
+  border-top: 140px solid transparent;
+  border-bottom: 140px solid #E8D4B8;
+  border-bottom-right-radius: 12px;
+  z-index: 3;
+}
+
+.envelope-pocket-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: calc(min(90vw, 440px) / 2) solid transparent;
+  border-right: calc(min(90vw, 440px) / 2) solid transparent;
+  border-bottom: 148px solid #E0C8A4;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  z-index: 3;
+  filter: drop-shadow(0 -3px 5px rgba(0, 0, 0, 0.04));
+}
+
+/* CAPA 4: Solapa superior abatible (z-index: 4 al estar cerrada, 1 al abrirse) */
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-left: calc(min(90vw, 440px) / 2) solid transparent;
+  border-right: calc(min(90vw, 440px) / 2) solid transparent;
+  border-top: 146px solid #F1E2CD;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  z-index: 4;
+  filter: drop-shadow(0 4px 6px rgba(90, 60, 20, 0.12));
+}
+
+.envelope-flap::after {
+  content: '';
+  position: absolute;
+  top: -146px;
+  left: calc(-1 * min(90vw, 440px) / 2);
+  width: min(90vw, 440px);
+  height: 146px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+/* Sello de Lacre Dorado con Flor (Capa 5) */
+.envelope-seal {
+  position: absolute;
+  top: 128px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  z-index: 5;
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  animation: sealPulse 2.8s infinite ease-in-out;
+}
+
+.envelope-seal:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  filter: drop-shadow(0 6px 16px rgba(230, 160, 20, 0.6));
+}
+
+.envelope-seal img, 
+.envelope-seal svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Tooltip / Indicación de "Toca aquí para abrir" */
+.open-hint {
+  position: absolute;
+  top: 215px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(45, 35, 20, 0.88);
+  color: #FFFDF9;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 1.1rem;
+  border-radius: 30px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  animation: bounceHint 2s infinite ease-in-out;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.open-hint .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--primary-yellow);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--primary-yellow);
+}
+
+/* ==========================================================================
+   CARTA MODAL CENTRADA (HIJO DIRECTO DE BODY: CENTRADO PERFECTO EN PANTALLA)
+   ========================================================================== */
+.letter-paper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 440px);
+  max-height: 82vh;
+  overflow-y: auto;
+  z-index: 100;
+  background-color: var(--paper-bg);
+  background-image: 
+    radial-gradient(#E8D7BE 0.75px, transparent 0.75px),
+    linear-gradient(to bottom, #FFFDF8 0%, #FAF2E2 100%);
+  background-size: 16px 16px, 100% 100%;
+  border-radius: 12px;
+  padding: 2.2rem 2rem;
+  box-shadow: 
+    0 25px 60px rgba(35, 20, 5, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.35);
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* Borde floral decorativo dentro de la carta */
+.letter-paper::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  border: 1.5px dashed rgba(200, 150, 40, 0.35);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Encabezado y textos */
+.letter-header {
+  text-align: center;
+  margin-bottom: 0.8rem;
+}
+
+.letter-flourish {
+  color: var(--gold-accent);
+  font-size: 1.25rem;
+  line-height: 1;
+  display: inline-block;
+  letter-spacing: 0.2em;
+}
+
+.letter-date {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gold-dark);
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.letter-body {
+  padding: 0.4rem 0.2rem;
+}
+
+.letter-paragraph {
+  font-family: var(--font-script);
+  font-size: clamp(1.28rem, 2.6vw, 1.6rem);
+  line-height: 1.6;
+  color: #382A15;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.letter-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.letter-highlight {
+  color: #B45309;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(244, 196, 48, 0.2);
+}
+
+/* Pie de la carta y botón de cerrar */
+.letter-footer {
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.close-letter-btn {
+  background: rgba(255, 253, 249, 0.95);
+  border: 1px solid rgba(180, 130, 30, 0.45);
+  color: var(--gold-dark);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(180, 130, 30, 0.12);
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.close-letter-btn:hover {
+  background: #FFFBEB;
+  border-color: var(--gold-accent);
+  color: #78350F;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(244, 196, 48, 0.3);
+}
+
+/* 6. Jardín de Flores Amarillas (Footer Visual) */
+.garden-container {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 180px;
+  overflow: visible;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Césped y suelo degradado suave */
+.garden-grass-bed {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(to top, rgba(74, 124, 89, 0.35) 0%, rgba(74, 124, 89, 0) 100%);
+  z-index: 1;
+}
+
+/* Filas de Flores (Background y Foreground) */
+.flowers-layer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 2vw;
+}
+
+.flowers-layer.background {
+  z-index: 2;
+  opacity: 0.75;
+  filter: blur(0.5px);
+  transform: scale(0.85);
+  bottom: 10px;
+}
+
+.flowers-layer.foreground {
+  z-index: 3;
+  opacity: 1;
+}
+
+/* Elemento Individual de Flor */
+.flower-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: bottom center;
+}
+
+.flower-stem {
+  width: 4px;
+  background: linear-gradient(to right, #4A7C59, #356041);
+  border-radius: 4px;
+}
+
+.flower-leaf {
+  position: absolute;
+  width: 24px;
+  height: 14px;
+  background: #4A7C59;
+  border-radius: 0 100% 0 100%;
+}
+
+.flower-leaf.left {
+  left: -20px;
+  top: 40%;
+  transform: rotate(-25deg);
+}
+
+.flower-leaf.right {
+  right: -20px;
+  top: 60%;
+  transform: scaleX(-1) rotate(-25deg);
+}
+
+.flower-head {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 8px 12px rgba(80, 50, 10, 0.2));
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.flower-head:hover {
+  transform: scale(1.15) rotate(15deg);
+}
+
+/* Animaciones de balanceo orgánico con la brisa */
+.sway-slow {
+  animation: sway 6s ease-in-out infinite alternate;
+}
+
+.sway-medium {
+  animation: sway-alt 4.8s ease-in-out infinite alternate;
+}
+
+.sway-fast {
+  animation: sway 3.8s ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  0% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
+  100% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes sway-alt {
+  0% {
+    transform: rotate(3.5deg);
+  }
+  50% {
+    transform: rotate(-1.5deg);
+  }
+  100% {
+    transform: rotate(-3.5deg);
+  }
+}
+
+@keyframes sealPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(244, 196, 48, 0.5);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 0 20px 6px rgba(244, 196, 48, 0.4);
+  }
+}
+
+@keyframes bounceHint {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -6px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 7. Responsividad en Dispositivos Móviles */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 1.8rem 1rem 0.5rem;
+  }
+
+  .header-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.8rem;
+  }
+
+  .audio-toggle-btn {
+    top: 1rem;
+    right: 1rem;
+    width: 42px;
+    height: 42px;
+  }
+
+  .interactive-stage {
+    padding: 0.5rem 0.75rem 2.5rem;
+  }
+
+  .envelope-wrapper {
+    width: 94vw;
+    height: 260px;
+  }
+
+  .envelope-flap {
+    border-left-width: calc(94vw / 2);
+    border-right-width: calc(94vw / 2);
+    border-top-width: 135px;
+  }
+
+  .envelope-flap::after {
+    left: calc(-94vw / 2);
+    width: 94vw;
+    height: 135px;
+  }
+
+  .envelope-pocket-left,
+  .envelope-pocket-right {
+    border-left-width: calc(94vw / 2);
+    border-right-width: calc(94vw / 2);
+    border-top-width: 130px;
+    border-bottom-width: 130px;
+  }
+
+  .envelope-pocket-bottom {
+    border-left-width: calc(94vw / 2);
+    border-right-width: calc(94vw / 2);
+    border-bottom-width: 138px;
+  }
+
+  .envelope-seal {
+    top: 115px;
+    width: 62px;
+    height: 62px;
+  }
+
+  .open-hint {
+    top: 190px;
+    font-size: 0.78rem;
+  }
+
+  .letter-paper {
+    padding: 1.5rem 1.2rem 1.2rem;
+    height: 240px;
+  }
+
+  .letter-body {
+    font-size: 1.15rem;
+    line-height: 1.45;
+  }
+
+  .garden-container {
+    height: 135px;
+  }
+
+  .flower-head {
+    width: 65px;
+    height: 65px;
+  }
+
+  .flower-leaf {
+    width: 18px;
+    height: 10px;
+  }
+}
